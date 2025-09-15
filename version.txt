@@ -1,0 +1,1 @@
+gradle-plugin/src/main/resources/version.txt

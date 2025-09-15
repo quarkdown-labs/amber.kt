@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.quarkdown.automerge"
-version = "0.2.0"
+version = file("version.txt").readText().trim()
 
 repositories {
     mavenCentral()
