@@ -32,6 +32,7 @@ jobs:
       - name: Derive version from tag and update version.txt
         id: version
         run: |
+          git pull --rebase origin main
           TAG_NAME="${GITHUB_REF_NAME}"
           VERSION="${TAG_NAME#v}"
           echo "Version from tag: $VERSION"
