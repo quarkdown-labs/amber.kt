@@ -45,7 +45,7 @@ jobs:
           if ! git diff --quiet; then
             git add version.txt gradle-plugin/src/main/resources/version.txt 2>/dev/null || true
             git commit -m "chore: update version to $VERSION"
-            git push
+            git push origin HEAD:main
           else
             echo "No version changes to commit."
           fi
