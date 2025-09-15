@@ -11,11 +11,7 @@ private const val VERSION_RESOURCE_PATH = "/version.txt"
 class AutomergeGradlePlugin : Plugin<Project> {
     override fun apply(target: Project) {
         target.applyKspPlugin()
-
-        target.afterEvaluate {
-            target.applyDependencies()
-        }
-
+        target.applyDependencies()
         target.applySourceSetConfiguration()
     }
 
