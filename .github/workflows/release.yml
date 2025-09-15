@@ -55,17 +55,11 @@ jobs:
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-          # Use base64-encoded signing key secret to avoid newline/escaping problems.
-          SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingRequired: 'true'
         run: |
-          set -euo pipefail
-          # Decode the base64 secret into a temporary file and export it as the
-          # Gradle in-memory signing key. Use base64 --decode (ubuntu runner).
-          echo "$SIGNING_KEY_B64" | base64 --decode > signing.key
-          export ORG_GRADLE_PROJECT_signingInMemoryKey="$(cat signing.key)"
           ./gradlew --no-daemon publishToMavenCentral --stacktrace
 
       - name: Create release
