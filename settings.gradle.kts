@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "automerge"
-include(":annotations", ":processor", ":sample")
+include(":annotations", ":processor", ":gradle-plugin", ":sample")
