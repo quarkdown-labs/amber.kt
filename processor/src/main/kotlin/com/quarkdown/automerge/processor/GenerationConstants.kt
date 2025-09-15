@@ -1,6 +1,6 @@
 package com.quarkdown.automerge.processor
 
-import com.quarkdown.automerge.annotations.AutoMerge
+import com.quarkdown.automerge.annotations.Mergeable
 
 /**
  * Internal constants used by the AutoMerge KSP processor.
@@ -19,8 +19,8 @@ internal object GenerationConstants {
     const val INDENT: String = "    "
 
     /** Fully-qualified name of the AutoMerge annotation. */
-    val ANNOTATION_FQN: String = AutoMerge::class.java.run { "$packageName.$simpleName" }
+    val ANNOTATION_FQN: String = Mergeable::class.java.run { "$packageName.$simpleName" }
 
     /** Simple name of the AutoMerge annotation. */
-    val ANNOTATION_SIMPLE_NAME: String = AutoMerge::class.java.simpleName
+    val ANNOTATION_SIMPLE_NAME: String = Mergeable::class.java.simpleName
 }
