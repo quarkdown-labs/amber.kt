@@ -77,7 +77,8 @@ internal class MergeExtensionGenerator(
 
     private fun suppressAnnotation(): String = "@Suppress(\"RedundantNullableReturnType\", \"UNUSED_PARAMETER\")"
 
-    private fun signatureLine(className: String): String = "fun $className.$MERGE_FUNCTION_NAME(fallback: $className): $className =\n"
+    private fun signatureLine(className: String): String =
+        "fun $className.$MERGE_FUNCTION_NAME($MERGE_PARAMETER_NAME: $className): $className =\n"
 
     private fun methodBody(properties: List<KSPropertyDeclaration>): String =
         buildString {
