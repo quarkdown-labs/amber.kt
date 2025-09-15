@@ -1,4 +1,4 @@
-package com.example.sample
+package com.quarkdown.automerge
 
 import com.quarkdown.automerge.annotations.AutoMerge
 
