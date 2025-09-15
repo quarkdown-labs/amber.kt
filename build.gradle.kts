@@ -1,5 +1,7 @@
 plugins {
     kotlin("jvm") version "2.2.10"
+    id("com.vanniktech.maven.publish") version "0.34.0"
+    signing
 }
 
 group = "com.quarkdown.automerge"
@@ -13,10 +15,20 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+mavenPublishing {
+    publishToMavenCentral()
+
+    signAllPublications()
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
 kotlin {
     jvmToolchain(11)
+}
+
+subprojects {
+    apply(plugin = "com.vanniktech.maven.publish")
 }
