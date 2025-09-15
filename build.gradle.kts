@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.quarkdown.automerge"
-version = "0.1.0"
+version = "0.2.0"
 
 repositories {
     mavenCentral()
@@ -36,7 +36,7 @@ subprojects.filter { it.name in publishingSubprojects }.forEach { project ->
     project.apply(plugin = "com.vanniktech.maven.publish")
 
     project.mavenPublishing {
-        coordinates(project.group.toString(), projectName, project.version.toString())
+        coordinates(group.toString(), projectName, version.toString())
 
         publishToMavenCentral()
         signAllPublications()

@@ -3,8 +3,6 @@ plugins {
     `java-gradle-plugin`
 }
 
-group = "com.quarkdown.automerge"
-version = parent?.version ?: "0.0.0-SNAPSHOT"
 description = "Gradle plugin for `automerge`, the library to merge instances of Kotlin data classes at compile time."
 
 repositories {
