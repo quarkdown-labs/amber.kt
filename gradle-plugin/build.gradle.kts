@@ -20,7 +20,7 @@ dependencies {
 gradlePlugin {
     plugins {
         create("automerge") {
-            id = "com.quarkdown.automerge.gradle-plugin"
+            id = "com.quarkdown.automerge"
             implementationClass = "com.quarkdown.automerge.plugin.AutomergeGradlePlugin"
             displayName = "kotlin-automerge Setup Plugin"
             description = "Applies KSP and wires annotations and processor modules"

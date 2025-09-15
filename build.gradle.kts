@@ -1,7 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.10"
     id("com.vanniktech.maven.publish") version "0.34.0"
-    signing
 }
 
 group = "com.quarkdown.automerge"
