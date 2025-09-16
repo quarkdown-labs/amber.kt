@@ -41,13 +41,15 @@ jobs:
           if [ -f gradle-plugin/src/main/resources/version.txt ]; then
             echo "$VERSION" > gradle-plugin/src/main/resources/version.txt
           fi
+          # Update README installation section: id("com.quarkdown.automerge") version "x.y.z"
           if [ -f README.md ]; then
-            sed -E -i "s/(id\\(\"com\\.quarkdown\\.automerge\"\\) version\\s+\")[^\"]+\"/\\1${VERSION}\"/g" README.md
+            sed -E -i.bak "s/(id\\(\"com\\.quarkdown\\.automerge\"\\) version \"\")[^\"]+\"/\\1$VERSION\"/g" README.md || true
+            rm -f README.md.bak
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if ! git diff --quiet; then
-            git add version.txt gradle-plugin/src/main/resources/version.txt 2>/dev/null || true
+            git add version.txt README.md gradle-plugin/src/main/resources/version.txt 2>/dev/null || true
             git commit -m "chore: update version to $VERSION"
             git push origin HEAD:main
           else
