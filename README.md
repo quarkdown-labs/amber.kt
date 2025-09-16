@@ -7,6 +7,20 @@ The library was developed out of necessity for the [Quarkdown typesetting system
 it's currently available only for Kotlin/JVM, though Kotlin Multiplatform would be easy to support.  
 Contributions towards multiplatform support are welcome.
 
+```kotlin
+@Mergeable
+data class MyClass(
+    val a: String,
+    val b: Int? = null,
+    val c: Boolean? = null,
+)
+
+val first = MyClass(a = "X", b = 42)
+val second = MyClass(a = "Y", b = 7, c = true)
+
+val merged: MyClass = first.merge(second) // MyClass(a=X, b=42, c=true)
+```
+
 ## Installation
 
 ```kotlin
@@ -33,7 +47,7 @@ pluginManagement {
 The plugin will automatically include the compile-time `processor` and the runtime `annotations` modules,
 along with linking up the generated sources.
 
-## Example
+## Real-world example
 
 The library's main purpose is to abstract away from rigid defaults, making it possible to create flexible configurations.
 
