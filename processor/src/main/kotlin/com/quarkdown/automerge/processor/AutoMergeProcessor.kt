@@ -27,8 +27,8 @@ class AutoMergeProcessor(
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val symbols = resolver.getSymbolsWithAnnotation(GenerationConstants.ANNOTATION_FQN)
-        println(symbols.toList().map { it })
         val unableToProcess = mutableListOf<KSAnnotated>()
+
         for (symbol in symbols) {
             if (!symbol.validate()) {
                 unableToProcess.add(symbol)
