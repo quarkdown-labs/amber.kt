@@ -73,16 +73,18 @@ internal class MergeExtensionGenerator(
             appendLine()
             appendLine(GenerationConstants.GENERATED_HEADER)
             append(signatureLine(className))
-            append(methodBody(properties))
-            appendLine()
+            appendLine(" {")
+            appendLine(methodBody(properties))
+            appendLine("}")
         }
 
     private fun signatureLine(className: String): String =
-        "fun $className.$MERGE_FUNCTION_NAME($MERGE_PARAMETER_NAME: $className): $className =\n"
+        "fun $className.$MERGE_FUNCTION_NAME($MERGE_PARAMETER_NAME: $className?): $className"
 
     private fun methodBody(properties: List<KSPropertyDeclaration>): String =
         buildString {
-            append("this.copy(\n")
+            appendLine("if ($MERGE_PARAMETER_NAME == null) return copy()")
+            append("return copy(\n")
             properties.forEach {
                 append(INDENT)
                 append(propertyCopyLine(it))

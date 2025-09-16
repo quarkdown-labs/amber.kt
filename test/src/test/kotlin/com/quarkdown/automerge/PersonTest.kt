@@ -74,4 +74,12 @@ class PersonTest {
         assertEquals("Jane", merged.name)
         assertEquals(20, merged.age)
     }
+
+    @Test
+    fun `null fallback returns primary unchanged`() {
+        val a = Person(name = "John", age = 30)
+        val merged = a.merge(null)
+        assertEquals("John", merged.name)
+        assertEquals(30, merged.age)
+    }
 }

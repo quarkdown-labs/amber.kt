@@ -6,10 +6,11 @@ package com.quarkdown.automerge.annotations
  *
  * What gets generated:
  * - A file named `<ClassName>_AutoMerge.kt` in the same package.
- * - An extension function with the signature: `fun <ClassName>.merge(other: <ClassName>): <ClassName>`.
+ * - An extension function with the signature: `fun <ClassName>.merge(other: <ClassName>?): <ClassName>`.
  * - Merge semantics per property:
  *   - For nullable properties: `this.prop ?: other.prop` (uses `other` as fallback).
  *   - For non-nullable properties: `this.prop` (keeps the current value).
+ * - If `other` is null, the result is a copy of `this`.
  *
  * Constraints:
  * - Can only be applied to data classes. The processor will report an error otherwise.
