@@ -67,15 +67,15 @@ internal class MergeExtensionGenerator(
         properties: List<KSPropertyDeclaration>,
     ): String =
         buildString {
+            appendLine(GenerationConstants.SUPPRESS_ANNOTATION)
+            appendLine()
             appendLine("package $pkg")
             appendLine()
             appendLine(GenerationConstants.GENERATED_HEADER)
-            appendLine(suppressAnnotation())
             append(signatureLine(className))
             append(methodBody(properties))
+            appendLine()
         }
-
-    private fun suppressAnnotation(): String = "@Suppress(\"RedundantNullableReturnType\", \"UNUSED_PARAMETER\")"
 
     private fun signatureLine(className: String): String =
         "fun $className.$MERGE_FUNCTION_NAME($MERGE_PARAMETER_NAME: $className): $className =\n"
@@ -87,7 +87,7 @@ internal class MergeExtensionGenerator(
                 append(INDENT)
                 append(propertyCopyLine(it))
             }
-            append(")\n")
+            append(")")
         }.prependIndent(INDENT)
 
     private fun propertyCopyLine(prop: KSPropertyDeclaration): String {
