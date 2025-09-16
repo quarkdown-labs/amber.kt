@@ -19,7 +19,7 @@ repositories {
 }
 ```
 
-Also make sure Maven central is enabled as a plugin repository in your `settings.gradle.kts`:
+Also make sure Maven Central is enabled as a plugin repository in your `settings.gradle.kts`:
 
 ```kotlin
 pluginManagement {
