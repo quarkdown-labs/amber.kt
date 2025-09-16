@@ -11,7 +11,7 @@ Contributions towards multiplatform support are welcome.
 
 ```kotlin
 plugins {
-    id("com.quarkdown.automerge") version "<version>"
+    id("com.quarkdown.automerge") version "1.0.0"
 }
 
 repositories {
