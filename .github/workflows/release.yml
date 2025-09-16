@@ -60,7 +60,7 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingRequired: 'true'
         run: |
-          ./gradlew --no-daemon publishToMavenCentral --stacktrace
+          ./gradlew --no-daemon publishAndReleaseToMavenCentral --stacktrace
 
       - name: Create release
         uses: softprops/action-gh-release@v2
