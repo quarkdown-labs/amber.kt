@@ -29,7 +29,7 @@ jobs:
       - name: Run tests
         run: ./gradlew --no-daemon test
 
-      - name: Derive version from tag and update version.txt
+      - name: Derive version from tag and update version.txt and README.md
         id: version
         run: |
           git pull --rebase origin main
@@ -40,6 +40,9 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           if [ -f gradle-plugin/src/main/resources/version.txt ]; then
             echo "$VERSION" > gradle-plugin/src/main/resources/version.txt
+          fi
+          if [ -f README.md ]; then
+            sed -E -i "s/(id\\(\"com\\.quarkdown\\.automerge\"\\) version\\s+\")[^\"]+\"/\\1${VERSION}\"/g" README.md
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
