@@ -62,3 +62,8 @@ fun main() {
     val preferences: Preferences = user.merge(default)
     println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=10)
 ```
+
+## Troubleshooting
+
+Make sure that annotation processing is enabled in your IDE to ensure the `merge` function can be resolved. 
+Alternatively, build the project right after marking a class with `@Mergeable`.
