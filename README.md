@@ -35,7 +35,7 @@ along with linking up the generated sources.
 
 ## Example
 
-The library's main purpose is to abstract away from rigid defaults, 
+The library's main purpose is to abstract away from rigid defaults, making it possible to create flexible configurations.
 
 ```kotlin
 import com.quarkdown.automerge.annotations.Mergeable
@@ -59,6 +59,6 @@ fun main() {
     val user = Preferences(theme = "dark", autoSaveDelay = 10)
 
     // Merging user preferences with defaults. User values take precedence.
-    val merged: Preferences = user.merge(default)
-    println(merged) // Preferences(theme=dark, fontSize=16, autoSaveDelay=30)
+    val preferences: Preferences = user.merge(default)
+    println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=30)
 ```
