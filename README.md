@@ -60,5 +60,5 @@ fun main() {
 
     // Merging user preferences with defaults. User values take precedence.
     val preferences: Preferences = user.merge(default)
-    println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=30)
+    println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=10)
 ```
