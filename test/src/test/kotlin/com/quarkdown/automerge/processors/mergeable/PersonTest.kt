@@ -1,4 +1,4 @@
-package com.quarkdown.automerge
+package com.quarkdown.automerge.processors.mergeable
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
