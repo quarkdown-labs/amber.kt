@@ -1,7 +1,5 @@
 package com.quarkdown.automerge.processor
 
-import com.quarkdown.automerge.annotations.Mergeable
-
 /**
  * Internal constants used by the AutoMerge KSP processor.
  */
@@ -13,18 +11,6 @@ internal object GenerationConstants {
     const val SUPPRESS_ANNOTATION: String =
         """@file:Suppress("ktlint:standard:filename", "RedundantNullableReturnType", "UNUSED_PARAMETER")"""
 
-    /** Name of the generated merge function. */
-    const val MERGE_FUNCTION_NAME: String = "merge"
-
-    /** Name of the parameter representing the other instance to merge with. */
-    const val MERGE_PARAMETER_NAME: String = "other"
-
-    /** Indentation string used in generated code. */
+    /** Indentation used in generated code. */
     const val INDENT: String = "    "
-
-    /** Fully-qualified name of the AutoMerge annotation. */
-    val ANNOTATION_FQN: String = Mergeable::class.java.run { "$packageName.$simpleName" }
-
-    /** Simple name of the AutoMerge annotation. */
-    val ANNOTATION_SIMPLE_NAME: String = Mergeable::class.java.simpleName
 }

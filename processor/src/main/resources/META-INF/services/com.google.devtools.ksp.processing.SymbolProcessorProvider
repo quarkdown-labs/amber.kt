@@ -1,1 +1,1 @@
-com.quarkdown.automerge.processor.AutoMergeProcessorProvider
+com.quarkdown.automerge.processors.mergeable.MergeableProcessorProvider
