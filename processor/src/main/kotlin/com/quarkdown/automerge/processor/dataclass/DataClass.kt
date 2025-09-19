@@ -10,19 +10,11 @@ package com.quarkdown.automerge.processor.dataclass
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Modifier
 
 /** True if this class is declared as a Kotlin data class. */
 val KSClassDeclaration.isDataClass: Boolean
     get() = Modifier.DATA in this.modifiers
-
-/** True if this type represents a Kotlin data class. */
-val KSType.isDataClass: Boolean
-    get() {
-        val declaration = this.declaration
-        return declaration is KSClassDeclaration && declaration.isDataClass
-    }
 
 /**
  * Returns the properties that belong to the primary constructor of the data class,
