@@ -1,6 +1,6 @@
-# Amber - Compile-time utils for Kotlin
+# Amber ![Maven Central Version](https://img.shields.io/maven-central/v/com.quarkdown.amber/com.quarkdown.amber.gradle.plugin?color=orange)
 
-Amber is a tiny, compile-time, reflectionless collection of utilities that promotes immutability and readability in Kotlin code.
+Amber is a tiny, compile-time, reflectionless collection of utilities that promote immutability and readability in Kotlin code.
 
 The library was developed out of necessity for the [Quarkdown typesetting system](https://github.com/iamgio/quarkdown):
 it's currently available only for Kotlin/JVM, though Kotlin Multiplatform would be easy to support.  
@@ -10,7 +10,7 @@ Contributions towards multiplatform support are welcome.
 
 ```kotlin
 plugins {
-    id("com.quarkdown.amber") version "2.0.0"
+    id("com.quarkdown.amber") version "2.1.0"
 }
 
 repositories {

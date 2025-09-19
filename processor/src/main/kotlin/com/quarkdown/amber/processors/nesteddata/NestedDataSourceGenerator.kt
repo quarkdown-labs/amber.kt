@@ -11,9 +11,6 @@ import com.quarkdown.amber.processor.generator.ClassSourceGenerator
 /** The name of the generated deep copy extension function. */
 private const val FUNCTION_NAME = "deepCopy"
 
-/** Separator used to flatten nested property names into parameter names. */
-private const val PARAMETER_PROPERTY_SEPARATOR = "_"
-
 /**
  * Generates an extension function that performs a deep copy of a data class by
  * exposing parameters for nested properties.
@@ -61,6 +58,22 @@ class NestedDataSourceGenerator(
     }
 
     /**
+     * Given a node and its parent chain of data class properties, produces a flattened
+     * property name suitable for use as a parameter name, camelCase.
+     * @param parents The chain of parent property nodes
+     * @param node The current property node
+     * @return The flattened property name (e.g., `firstSecondThird` for `first.second.third`)
+     */
+    private fun flattenPropertyName(
+        parents: List<PropertyNode>,
+        node: PropertyNode,
+    ): String =
+        (parents.asSequence().map { it.name } + node.name)
+            .mapIndexed { index, part ->
+                if (index == 0) part else part.replaceFirstChar { it.uppercaseChar() }
+            }.joinToString(separator = "")
+
+    /**
      * Builds the complete list of parameters for the generated function.
      *
      * @param propertiesTreeRoot The root node of the property tree
@@ -73,11 +86,9 @@ class NestedDataSourceGenerator(
             node: PropertyNode,
             parents: List<PropertyNode>,
         ) {
-            val paramName = (parents.asSequence().map { it.name } + node.name).joinToString(PARAMETER_PROPERTY_SEPARATOR)
-
             params +=
                 Parameter(
-                    name = paramName,
+                    name = flattenPropertyName(parents, node),
                     node = node,
                     parents = parents,
                 )

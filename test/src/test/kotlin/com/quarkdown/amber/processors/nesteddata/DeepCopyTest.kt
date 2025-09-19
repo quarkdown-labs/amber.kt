@@ -60,7 +60,7 @@ class DeepCopyTest {
 
     @Test
     fun `copies one-level nested values`() {
-        val new = config.deepCopy(app_theme = "dark")
+        val new = config.deepCopy(appTheme = "dark")
         assertEquals(1, new.id)
         assertEquals("dark", new.app.theme)
         assertEquals(config.fallbackApp, new.fallbackApp)
@@ -72,8 +72,8 @@ class DeepCopyTest {
     fun `copies multiple one-level nested values of different fields`() {
         val new =
             config.deepCopy(
-                app_theme = "dark",
-                notifications_email = false,
+                appTheme = "dark",
+                notificationsEmail = false,
             )
         assertEquals(1, new.id)
         assertEquals("dark", new.app.theme)
@@ -87,8 +87,8 @@ class DeepCopyTest {
     fun `copies multiple one-level nested values of the same field`() {
         val new =
             config.deepCopy(
-                notifications_email = false,
-                notifications_push = true,
+                notificationsEmail = false,
+                notificationsPush = true,
             )
         assertEquals(1, new.id)
         assertEquals(config.app, new.app)
@@ -100,7 +100,7 @@ class DeepCopyTest {
 
     @Test
     fun `copies two-level nested values`() {
-        val new = config.deepCopy(io_source_sourceDir = "/newSrc")
+        val new = config.deepCopy(ioSourceSourceDir = "/newSrc")
         assertEquals(1, new.id)
         assertEquals(config.app, new.app)
         assertEquals(config.fallbackApp, new.fallbackApp)
@@ -114,8 +114,8 @@ class DeepCopyTest {
         val new =
             config.deepCopy(
                 id = 2,
-                app_theme = "dark",
-                io_output_outputDir = "/newOut",
+                appTheme = "dark",
+                ioOutputOutputDir = "/newOut",
             )
         assertEquals(2, new.id)
         assertEquals("dark", new.app.theme)
@@ -127,7 +127,7 @@ class DeepCopyTest {
 
     @Test
     fun `copies deeply nested values`() {
-        val new = config.deepCopy(a_b_c_d_e_value = 100)
+        val new = config.deepCopy(aBCDEValue = 100)
         assertEquals(1, new.id)
         assertEquals(config.app, new.app)
         assertEquals(config.fallbackApp, new.fallbackApp)
@@ -143,13 +143,13 @@ class DeepCopyTest {
 
     @Test
     fun `copies deeply nested, null value`() {
-        val new = config.deepCopy(a_b_c_d = null)
+        val new = config.deepCopy(aBCD = null)
         assertEquals(null, new.a.b.c.d)
     }
 
     @Test
     fun `discards deeply nested, non-null null value`() {
-        val new = config.deepCopy(a_b_c_d_e_value = null)
+        val new = config.deepCopy(aBCDEValue = null)
         assertEquals(config.a, new.a)
         assertEquals(config.a.b, new.a.b)
         assertEquals(config.a.b.c, new.a.b.c)
