@@ -63,9 +63,14 @@ fun KSClassDeclaration.buildDataClassPropertiesTree(): DataClassNode {
     return DataClassNode(root.simpleName.asString(), rootTypeName, false, children)
 }
 
-fun PropertyNode.dfs(action: (PropertyNode) -> Unit) {
-    action(this)
+fun PropertyNode.dfs(
+    skipRoot: Boolean = false,
+    action: (PropertyNode) -> Unit,
+) {
+    if (!skipRoot) {
+        action(this)
+    }
     if (this is DataClassNode) {
-        children.forEach { it.dfs(action) }
+        children.forEach { it.dfs(skipRoot = false, action) }
     }
 }

@@ -15,6 +15,17 @@ class DeepCopyTest {
                     source = SourceIoConfig(sourceDir = "/src"),
                     output = OutputIoConfig(outputDir = "/out"),
                 ),
+            a =
+                A(
+                    A.B(
+                        A.B.C(
+                            A.B.C.D(
+                                A.B.C.D
+                                    .E(value = 42),
+                            ),
+                        ),
+                    ),
+                ),
         )
 
     @Test
@@ -25,6 +36,7 @@ class DeepCopyTest {
         assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(config.notifications, new.notifications)
         assertEquals(config.io, new.io)
+        assertEquals(config.a, new.a)
         // Ensure different instances
         assert(config !== new)
         assert(config.app !== new.app)
@@ -33,6 +45,7 @@ class DeepCopyTest {
         assert(config.io !== new.io)
         assert(config.io.source !== new.io.source)
         assert(config.io.output !== new.io.output)
+        assert(config.a !== new.a)
     }
 
     @Test
@@ -110,5 +123,50 @@ class DeepCopyTest {
         assertEquals(config.notifications, new.notifications)
         assertEquals("/src", new.io.source.sourceDir)
         assertEquals("/newOut", new.io.output?.outputDir)
+    }
+
+    @Test
+    fun `copies deeply nested values`() {
+        val new = config.deepCopy(a_b_c_d_e_value = 100)
+        assertEquals(1, new.id)
+        assertEquals(config.app, new.app)
+        assertEquals(config.fallbackApp, new.fallbackApp)
+        assertEquals(config.notifications, new.notifications)
+        assertEquals(config.io, new.io)
+        assertEquals(
+            100,
+            new.a.b.c.d
+                ?.e
+                ?.value,
+        )
+    }
+
+    @Test
+    fun `copies deeply nested, null value`() {
+        val new = config.deepCopy(a_b_c_d = null)
+        assertEquals(null, new.a.b.c.d)
+    }
+
+    @Test
+    fun `discards deeply nested, non-null null value`() {
+        val new = config.deepCopy(a_b_c_d_e_value = null)
+        assertEquals(config.a, new.a)
+        assertEquals(config.a.b, new.a.b)
+        assertEquals(config.a.b.c, new.a.b.c)
+        assertEquals(config.a.b.c.d, new.a.b.c.d)
+        assertEquals(
+            config.a.b.c.d
+                ?.e,
+            new.a.b.c.d
+                ?.e,
+        )
+        assertEquals(
+            config.a.b.c.d
+                ?.e
+                ?.value,
+            new.a.b.c.d
+                ?.e
+                ?.value,
+        )
     }
 }
