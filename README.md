@@ -1,7 +1,6 @@
-# kotlin-automerge
+# Amber - Compile-time utils for Kotlin
 
-AutoMerge is a tiny, compile-time, reflectionless Kotlin library that makes it possible to merge instances of the same data class,
-in an immutable and user-friendly way.
+Amber is a tiny, compile-time, reflectionless collection of utilities that promotes immutability and readability in Kotlin code.
 
 The library was developed out of necessity for the [Quarkdown typesetting system](https://github.com/iamgio/quarkdown):
 it's currently available only for Kotlin/JVM, though Kotlin Multiplatform would be easy to support.  
@@ -11,7 +10,7 @@ Contributions towards multiplatform support are welcome.
 
 ```kotlin
 plugins {
-    id("com.quarkdown.automerge") version "1.1.0"
+    id("com.quarkdown.amber") version "1.1.0"
 }
 
 repositories {
@@ -105,7 +104,7 @@ val merged: MyClass = first.merge(second) // MyClass(a=X, b=42, c=true)
 The library's main purpose is to abstract away from rigid defaults, making it possible to create flexible configurations.
 
 ```kotlin
-import com.quarkdown.automerge.annotations.Mergeable
+import com.quarkdown.amber.annotations.Mergeable
 
 @Mergeable
 data class Preferences(

@@ -4,7 +4,7 @@ plugins {
     `maven-publish`
 }
 
-description = "Compile-time processor for `automerge`, the library to merge instances of Kotlin data classes at compile time."
+description = "Compile-time processor for `amber`, the compile-time utils for Kotlin."
 
 repositories {
     mavenCentral()
