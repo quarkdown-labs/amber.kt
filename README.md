@@ -48,8 +48,13 @@ data class AppConfig(
 )
 
 data class NotificationConfig(
-    val email: Boolean,
-    val push: Boolean,
+    val email: EmailNotificationConfig,
+    val push: PushNotificationConfig,
+)
+
+data class EmailNotificationConfig(
+    val enabled: Boolean,
+    val frequency: String,
 )
 ```
 
@@ -58,7 +63,9 @@ Without the library, generating a copy with a modified nested property is a verb
 ```kotlin
 val newConfig: Config = config.copy(
     app = config.app.copy(theme = "dark"),
-    notifications = config.notifications.copy(email = false),
+    notifications = config.notifications.copy(
+        email = config.notifications.email.copy(enabled = false)
+    )
 )
 ```
 
@@ -67,7 +74,7 @@ With `deepCopy`, it becomes much more concise:
 ```kotlin
 val newConfig: Config = config.deepCopy(
     app_theme = "dark",
-    notifications_email = false,
+    notifications_email_email = false,
 )
 ```
 
