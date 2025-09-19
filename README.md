@@ -76,8 +76,8 @@ With `deepCopy`, it becomes much more concise:
 
 ```kotlin
 val newConfig: Config = config.deepCopy(
-    app_theme = "dark",
-    notifications_email_enabled = false,
+    appTheme = "dark",
+    notificationsEmailEnabled = false,
 )
 ```
 
