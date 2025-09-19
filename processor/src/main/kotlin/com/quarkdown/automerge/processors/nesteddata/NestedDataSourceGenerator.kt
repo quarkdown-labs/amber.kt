@@ -8,8 +8,10 @@ import com.quarkdown.automerge.processor.dataclass.PropertyNode
 import com.quarkdown.automerge.processor.dataclass.buildDataClassPropertiesTree
 import com.quarkdown.automerge.processor.generator.ClassSourceGenerator
 
+/** The name of the generated deep copy extension function. */
 private const val FUNCTION_NAME = "deepCopy"
 
+/** Separator used to flatten nested property names into parameter names. */
 private const val PARAMETER_PROPERTY_SEPARATOR = "_"
 
 /**
@@ -17,9 +19,11 @@ private const val PARAMETER_PROPERTY_SEPARATOR = "_"
  * exposing parameters for nested properties.
  *
  * The generator walks nested data-class properties and emits parameters for every
- * leaf and intermediate node (skipping the top-level names which are already
- * declared as top-level parameters). It then emits code that rebuilds the
- * nested data objects using copy(...) calls, applying null-safety where needed.
+ * leaf and intermediate node. It then emits code that rebuilds the nested data
+ * objects using `copy(...)` calls, applying null-safety where needed.
+ *
+ * @param environment The KSP processing environment
+ * @param annotated The data class declaration to process
  */
 class NestedDataSourceGenerator(
     environment: SymbolProcessorEnvironment,
@@ -38,15 +42,30 @@ class NestedDataSourceGenerator(
             appendLine("}")
         }
 
+    /**
+     * A parameter in the generated function signature.
+     *
+     * @property name The flattened parameter name, where each parent parameter is separated by [PARAMETER_PROPERTY_SEPARATOR]
+     *                (e.g., `first_second_third` for `first.second.third`)
+     * @property node The property node this parameter represents
+     * @property parents The chain of parent nodes leading to this property
+     */
     private data class Parameter(
         val name: String,
         val node: PropertyNode,
         val parents: List<PropertyNode>,
     ) {
+        /** True if any parent in the property chain is nullable. */
         val hasNullableParents: Boolean
             get() = parents.any { it.nullable }
     }
 
+    /**
+     * Builds the complete list of parameters for the generated function.
+     *
+     * @param propertiesTreeRoot The root node of the property tree
+     * @return A list of flattened parameters representing every property in the tree
+     */
     private fun buildParameterList(propertiesTreeRoot: DataClassPropertyNode): List<Parameter> {
         val params = mutableListOf<Parameter>()
 
@@ -77,6 +96,13 @@ class NestedDataSourceGenerator(
         return params
     }
 
+    /**
+     * Generates the function signature line including parameter declarations.
+     *
+     * @param root The root property node representing the class
+     * @param params List of all parameters for the function
+     * @return The complete function signature line
+     */
     private fun signatureLine(
         root: PropertyNode,
         params: List<Parameter>,
@@ -86,6 +112,10 @@ class NestedDataSourceGenerator(
         val paramsSignature =
             buildString {
                 params.forEach { param ->
+                    // Output examples:
+                    // a: A = this.a,
+                    // a_b_c: C = a.b.c,
+                    // a_b_c_d: D? = a.b.c.d,
                     append(INDENT)
                     append(param.name)
                     append(": ")
@@ -94,6 +124,7 @@ class NestedDataSourceGenerator(
                     append(" = ")
                     if (param.parents.isEmpty()) append("this.")
 
+                    // Any node after a nullable one needs a safe access operator.
                     var nullableChain = false
                     (param.parents + param.node).forEachIndexed { index, node ->
                         if (index > 0) {
@@ -110,6 +141,14 @@ class NestedDataSourceGenerator(
         return "fun $className.$FUNCTION_NAME(\n$paramsSignature): $className"
     }
 
+    /**
+     * Generates the `copy` call for reconstructing nested data structures.
+     *
+     * @param root The root data class node being copied
+     * @param params All parameters available for the copy operation
+     * @param parents Chain of parent parameters for null safety logic
+     * @return The `copy(...)` call as a string
+     */
     private fun copyData(
         root: DataClassPropertyNode,
         params: List<Parameter>,
@@ -117,11 +156,15 @@ class NestedDataSourceGenerator(
     ): String =
         buildString {
             append("copy(")
+
             root.children.forEachIndexed { index, node ->
                 val param = params.first { it.node === node }
+
                 append(node.name)
                 append(" = ")
+
                 if (node is DataClassPropertyNode) {
+                    // Nested data class: add `copy` call recursively.
                     append(param.name)
                     if (node.nullable || param.hasNullableParents) {
                         append("?")
@@ -129,6 +172,7 @@ class NestedDataSourceGenerator(
                     append(".")
                     append(copyData(node, params, parents + param))
                 } else {
+                    // Leaf property: use parameter directly, with null safety if needed.
                     append(param.name)
                     if (node.nullable || param.hasNullableParents) {
                         append(" ?: ")
@@ -146,6 +190,13 @@ class NestedDataSourceGenerator(
             append(")")
         }
 
+    /**
+     * Generates the method body containing the return statement.
+     *
+     * @param root The root property node
+     * @param params All function parameters
+     * @return The method body as a string
+     */
     private fun methodBody(
         root: DataClassPropertyNode,
         params: List<Parameter>,
