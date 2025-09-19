@@ -169,4 +169,23 @@ class DeepCopyTest {
                 ?.value,
         )
     }
+
+    @Test
+    fun `copies generic properties`() {
+        val alphabet =
+            Alphabet(
+                letters = listOf('A', 'B', 'C'),
+                anyLetters = listOf('D', 'E', 'F'),
+                lettersToIndex = mapOf('G' to 7, 'H' to 8, 'I' to 9),
+            )
+        val new =
+            alphabet.deepCopy(
+                letters = listOf('X', 'Y', 'Z'),
+                anyLetters = listOf('1', '2', '3'),
+                lettersToIndex = mapOf('4' to 4, '5' to 5, '6' to 6),
+            )
+        assertEquals(listOf('X', 'Y', 'Z'), new.letters)
+        assertEquals(listOf('1', '2', '3'), new.anyLetters)
+        assertEquals(mapOf('4' to 4, '5' to 5, '6' to 6), new.lettersToIndex)
+    }
 }

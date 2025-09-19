@@ -1,6 +1,7 @@
 package com.quarkdown.amber.processor.dataclass
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.quarkdown.amber.processor.utils.formattedName
 
 /**
  * Represents a node in a hierarchical tree of data class properties.
@@ -72,7 +73,7 @@ fun KSClassDeclaration.buildDataClassPropertiesTree(): DataClassPropertyNode {
         return classDeclaration.dataClassProperties.map { property ->
             val propertyType = property.type.resolve()
             val typeDeclaration = propertyType.declaration
-            val propertyTypeName = propertyType.declaration.qualifiedName?.asString() ?: propertyType.declaration.simpleName.asString()
+            val propertyTypeName = propertyType.formattedName
             val propertyName = property.simpleName.asString()
             val isNullable = propertyType.isMarkedNullable
 
