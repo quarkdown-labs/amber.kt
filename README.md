@@ -30,6 +30,8 @@ pluginManagement {
 }
 ```
 
+&nbsp;
+
 ## Deep-copying data classes
 
 Annotating a data class with `@NestedData` will provide a `deepCopy` function, allowing waterfall copying of nested data classes.
@@ -77,6 +79,8 @@ val newConfig: Config = config.deepCopy(
     notifications_email_enabled = false,
 )
 ```
+
+&nbsp;
 
 ## Merging data classes
 
