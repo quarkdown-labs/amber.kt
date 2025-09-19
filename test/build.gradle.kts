@@ -3,7 +3,7 @@ plugins {
     id("com.google.devtools.ksp") version "2.2.10-2.0.2"
 }
 
-group = "com.quarkdown.automerge"
+group = "com.quarkdown.amber"
 version = parent?.version ?: "0.0.0-SNAPSHOT"
 
 repositories {

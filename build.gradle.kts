@@ -3,7 +3,7 @@ plugins {
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
-group = "com.quarkdown.automerge"
+group = "com.quarkdown.amber"
 version = file("version.txt").readText().trim()
 
 repositories {
@@ -30,7 +30,7 @@ val publishingSubprojects =
     )
 
 subprojects.filter { it.name in publishingSubprojects }.forEach { project ->
-    val projectName = "automerge-" + project.name
+    val projectName = "amber-" + project.name
 
     project.apply(plugin = "com.vanniktech.maven.publish")
 
@@ -43,7 +43,7 @@ subprojects.filter { it.name in publishingSubprojects }.forEach { project ->
         pom {
             name.set(projectName)
             description.set(project.description)
-            url.set("https://github.com/quarkdown-labs/kotlin-automerge/")
+            url.set("https://github.com/quarkdown-labs/amber.kt/")
             licenses {
                 license {
                     name.set("The Apache License, Version 2.0")
@@ -58,9 +58,9 @@ subprojects.filter { it.name in publishingSubprojects }.forEach { project ->
                 }
             }
             scm {
-                url.set("https://github.com/quarkdown-labs/kotlin-automerge/")
-                connection.set("scm:git:git://github.com/quarkdown-labs/kotlin-automerge.git")
-                developerConnection.set("scm:git:ssh://git@github.com/quarkdown-labs/kotlin-automerge.git")
+                url.set("https://github.com/quarkdown-labs/amber.kt/")
+                connection.set("scm:git:git://github.com/quarkdown-labs/amber.kt.git")
+                developerConnection.set("scm:git:ssh://git@github.com/quarkdown-labs/amber.kt.git")
             }
         }
     }

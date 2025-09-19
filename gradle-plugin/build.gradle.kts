@@ -3,7 +3,7 @@ plugins {
     `java-gradle-plugin`
 }
 
-description = "Gradle plugin for `automerge`, the library to merge instances of Kotlin data classes at compile time."
+description = "Gradle plugin for `amber`, the compile-time utils for Kotlin."
 
 repositories {
     mavenCentral()
@@ -19,10 +19,10 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("automerge") {
-            id = "com.quarkdown.automerge"
-            implementationClass = "com.quarkdown.automerge.plugin.AutomergeGradlePlugin"
-            displayName = "kotlin-automerge Setup Plugin"
+        create("amber") {
+            id = "com.quarkdown.amber"
+            implementationClass = "com.quarkdown.amber.plugin.AmberGradlePlugin"
+            displayName = "Amber Setup Plugin"
             description = "Applies KSP and wires annotations and processor modules"
         }
     }

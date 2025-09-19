@@ -41,9 +41,9 @@ jobs:
           if [ -f gradle-plugin/src/main/resources/version.txt ]; then
             echo "$VERSION" > gradle-plugin/src/main/resources/version.txt
           fi
-          # Update README installation section: id("com.quarkdown.automerge") version "x.y.z"
+          # Update README installation section: id("com.quarkdown.amber") version "x.y.z"
           if [ -f README.md ]; then
-            sed -E -i.bak "s/(id\\(\"com\\.quarkdown\\.automerge\"\\) version \"\")[^\"]+\"/\\1$VERSION\"/g" README.md || true
+            sed -E -i.bak "s/(id\\(\"com\\.quarkdown\\.amber\"\\) version \"\")[^\"]+\"/\\1$VERSION\"/g" README.md || true
             rm -f README.md.bak
           fi
           git config user.name "github-actions[bot]"
