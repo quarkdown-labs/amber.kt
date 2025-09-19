@@ -3,19 +3,18 @@ package com.quarkdown.automerge.processors.nesteddata
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.quarkdown.automerge.processor.GenerationConstants.INDENT
-import com.quarkdown.automerge.processor.dataclass.DataClassNode
+import com.quarkdown.automerge.processor.dataclass.DataClassPropertyNode
 import com.quarkdown.automerge.processor.dataclass.PropertyNode
 import com.quarkdown.automerge.processor.dataclass.buildDataClassPropertiesTree
 import com.quarkdown.automerge.processor.generator.ClassSourceGenerator
 
 private const val FUNCTION_NAME = "deepCopy"
 
+private const val PARAMETER_PROPERTY_SEPARATOR = "_"
+
 /**
  * Generates an extension function that performs a deep copy of a data class by
  * exposing parameters for nested properties.
- *
- * Example output (simplified):
- * fun Config.deepCopy(id: Int = this.id, app_theme: String = app.theme, ...): Config { ... }
  *
  * The generator walks nested data-class properties and emits parameters for every
  * leaf and intermediate node (skipping the top-level names which are already
@@ -48,14 +47,14 @@ class NestedDataSourceGenerator(
             get() = parents.any { it.nullable }
     }
 
-    private fun buildParameterList(propertiesTreeRoot: DataClassNode): List<Parameter> {
+    private fun buildParameterList(propertiesTreeRoot: DataClassPropertyNode): List<Parameter> {
         val params = mutableListOf<Parameter>()
 
         fun traverseProperties(
             node: PropertyNode,
             parents: List<PropertyNode>,
         ) {
-            val paramName = (parents.asSequence().map { it.name } + node.name).joinToString("_")
+            val paramName = (parents.asSequence().map { it.name } + node.name).joinToString(PARAMETER_PROPERTY_SEPARATOR)
 
             params +=
                 Parameter(
@@ -64,7 +63,7 @@ class NestedDataSourceGenerator(
                     parents = parents,
                 )
 
-            if (node is DataClassNode) {
+            if (node is DataClassPropertyNode) {
                 for (child in node.children) {
                     traverseProperties(child, parents + node)
                 }
@@ -112,18 +111,17 @@ class NestedDataSourceGenerator(
     }
 
     private fun copyData(
-        root: DataClassNode,
+        root: DataClassPropertyNode,
         params: List<Parameter>,
         parents: List<Parameter> = emptyList(),
     ): String =
         buildString {
-            appendLine("copy(")
-            root.children.forEach { node ->
+            append("copy(")
+            root.children.forEachIndexed { index, node ->
                 val param = params.first { it.node === node }
                 append(node.name)
                 append(" = ")
-                if (node is DataClassNode) {
-                    append("\n")
+                if (node is DataClassPropertyNode) {
                     append(param.name)
                     if (node.nullable || param.hasNullableParents) {
                         append("?")
@@ -141,13 +139,15 @@ class NestedDataSourceGenerator(
                         append(node.name)
                     }
                 }
-                appendLine(",")
+                if (index < root.children.lastIndex) {
+                    append(", ")
+                }
             }
-            appendLine(")")
+            append(")")
         }
 
     private fun methodBody(
-        root: DataClassNode,
+        root: DataClassPropertyNode,
         params: List<Parameter>,
     ): String = "return ${copyData(root, params)}".prependIndent(INDENT)
 }

@@ -14,14 +14,14 @@ data class LeafPropertyNode(
     override val nullable: Boolean,
 ) : PropertyNode
 
-data class DataClassNode(
+data class DataClassPropertyNode(
     override val name: String,
     override val type: String,
     override val nullable: Boolean,
     val children: List<PropertyNode>,
 ) : PropertyNode
 
-fun KSClassDeclaration.buildDataClassPropertiesTree(): DataClassNode {
+fun KSClassDeclaration.buildDataClassPropertiesTree(): DataClassPropertyNode {
     fun buildChildrenForClass(
         classDeclaration: KSClassDeclaration,
         visited: MutableSet<String> = mutableSetOf(),
@@ -41,7 +41,7 @@ fun KSClassDeclaration.buildDataClassPropertiesTree(): DataClassNode {
             if (typeDeclaration is KSClassDeclaration && typeDeclaration.isDataClass) {
                 // Recursively build children for nested data classes.
                 val children = buildChildrenForClass(typeDeclaration)
-                DataClassNode(
+                DataClassPropertyNode(
                     name = propertyName,
                     type = propertyTypeName,
                     nullable = isNullable,
@@ -60,7 +60,7 @@ fun KSClassDeclaration.buildDataClassPropertiesTree(): DataClassNode {
     val root = this
     val rootTypeName = root.qualifiedName?.asString() ?: root.simpleName.asString()
     val children = buildChildrenForClass(root)
-    return DataClassNode(root.simpleName.asString(), rootTypeName, false, children)
+    return DataClassPropertyNode(root.simpleName.asString(), rootTypeName, false, children)
 }
 
 fun PropertyNode.dfs(
@@ -70,7 +70,7 @@ fun PropertyNode.dfs(
     if (!skipRoot) {
         action(this)
     }
-    if (this is DataClassNode) {
+    if (this is DataClassPropertyNode) {
         children.forEach { it.dfs(skipRoot = false, action) }
     }
 }
