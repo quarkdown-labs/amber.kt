@@ -5,9 +5,12 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Nullability
 import com.quarkdown.automerge.processor.GenerationConstants.INDENT
+import com.quarkdown.automerge.processor.dataclass.DataClassNode
+import com.quarkdown.automerge.processor.dataclass.PropertyNode
+import com.quarkdown.automerge.processor.dataclass.buildDataClassPropertiesTree
+import com.quarkdown.automerge.processor.dataclass.dataClassProperties
+import com.quarkdown.automerge.processor.dataclass.isDataClass
 import com.quarkdown.automerge.processor.generator.ClassSourceGenerator
-import com.quarkdown.automerge.processor.utils.dataClassProperties
-import com.quarkdown.automerge.processor.utils.isDataClass
 
 private const val FUNCTION_NAME = "deepCopy"
 
@@ -32,29 +35,84 @@ class NestedDataSourceGenerator(
 
     override fun generateSourceBody(annotated: KSClassDeclaration): String =
         buildString {
-            appendLine(signatureLine())
+            val propertiesTree = annotated.buildDataClassPropertiesTree()
+            val params = buildParameterList(propertiesTree)
+            append(signatureLine(propertiesTree, params))
             appendLine(" {")
             appendLine(methodBody())
             appendLine("}")
         }
 
-    private fun signatureLine(): String {
-        val className = annotated.simpleName.asString()
-        val topParams =
-            annotated.dataClassProperties.joinToString(", ") { p ->
-                val name = p.simpleName.asString()
-                val resolved = p.type.resolve()
-                val typeName =
-                    qualifiedTypeName(
-                        resolved.declaration as KSClassDeclaration,
-                        resolved.nullability == Nullability.NULLABLE,
-                    )
-                "$name: $typeName = this.$name"
+    private data class Parameter(
+        val name: String,
+        val node: PropertyNode,
+        val parents: List<PropertyNode>,
+    ) {
+        val hasNullableParents: Boolean
+            get() = parents.any { it.nullable }
+    }
+
+    private fun buildParameterList(propertiesTreeRoot: DataClassNode): List<Parameter> {
+        val params = mutableListOf<Parameter>()
+
+        fun traverseProperties(
+            node: PropertyNode,
+            parents: List<PropertyNode>,
+        ) {
+            val paramName = (parents.asSequence().map { it.name } + node.name).joinToString("_")
+
+            params +=
+                Parameter(
+                    name = paramName,
+                    node = node,
+                    parents = parents,
+                )
+
+            if (node is DataClassNode) {
+                for (child in node.children) {
+                    traverseProperties(child, parents + node)
+                }
+            }
+        }
+
+        propertiesTreeRoot.children.forEach {
+            traverseProperties(it, emptyList())
+        }
+
+        return params
+    }
+
+    private fun signatureLine(
+        root: PropertyNode,
+        params: List<Parameter>,
+    ): String {
+        val className = root.name
+
+        val paramsSignature =
+            buildString {
+                params.forEach { param ->
+                    append(INDENT)
+                    append(param.name)
+                    append(": ")
+                    append(param.node.type)
+                    if (param.node.nullable || param.hasNullableParents) append("?")
+                    append(" = ")
+                    if (param.parents.isEmpty()) append("this.")
+
+                    var nullableChain = false
+                    (param.parents + param.node).forEachIndexed { index, node ->
+                        if (index > 0) {
+                            if (nullableChain) append("?")
+                            append(".")
+                        }
+                        append(node.name)
+                        if (node.nullable) nullableChain = true
+                    }
+                    appendLine(",")
+                }
             }
 
-        val nestedParams = buildNestedParams()
-        val params = listOf(topParams, nestedParams).filter { it.isNotBlank() }.joinToString(", ")
-        return "fun $className.$FUNCTION_NAME($params): $className"
+        return "fun $className.$FUNCTION_NAME(\n$paramsSignature): $className"
     }
 
     private data class Param(

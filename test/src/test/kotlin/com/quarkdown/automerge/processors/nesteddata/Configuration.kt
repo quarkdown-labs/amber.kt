@@ -6,6 +6,7 @@ import com.quarkdown.automerge.annotations.NestedData
 data class Config(
     val id: Int,
     val app: AppConfig,
+    val fallbackApp: AppConfig,
     val notifications: NotificationConfig,
     val io: IoConfig,
 )

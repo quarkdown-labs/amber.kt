@@ -8,6 +8,7 @@ class DeepCopyTest {
         Config(
             id = 1,
             app = AppConfig(theme = "light"),
+            fallbackApp = AppConfig(theme = "dark"),
             notifications = NotificationConfig(email = true, push = true),
             io =
                 IoConfig(
@@ -17,10 +18,29 @@ class DeepCopyTest {
         )
 
     @Test
+    fun `deep-copies`() {
+        val new = config.deepCopy()
+        assertEquals(config, new)
+        assertEquals(config.app, new.app)
+        assertEquals(config.fallbackApp, new.fallbackApp)
+        assertEquals(config.notifications, new.notifications)
+        assertEquals(config.io, new.io)
+        // Ensure different instances
+        assert(config !== new)
+        assert(config.app !== new.app)
+        assert(config.fallbackApp !== new.fallbackApp)
+        assert(config.notifications !== new.notifications)
+        assert(config.io !== new.io)
+        assert(config.io.source !== new.io.source)
+        assert(config.io.output !== new.io.output)
+    }
+
+    @Test
     fun `copies non-nested values`() {
         val new = config.deepCopy(id = 2)
         assertEquals(2, new.id)
         assertEquals(config.app, new.app)
+        assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(config.notifications, new.notifications)
         assertEquals(config.io, new.io)
     }
@@ -30,6 +50,7 @@ class DeepCopyTest {
         val new = config.deepCopy(app_theme = "dark")
         assertEquals(1, new.id)
         assertEquals("dark", new.app.theme)
+        assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(config.notifications, new.notifications)
         assertEquals(config.io, new.io)
     }
@@ -43,6 +64,7 @@ class DeepCopyTest {
             )
         assertEquals(1, new.id)
         assertEquals("dark", new.app.theme)
+        assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(false, new.notifications.email)
         assertEquals(true, new.notifications.push)
         assertEquals(config.io, new.io)
@@ -57,6 +79,7 @@ class DeepCopyTest {
             )
         assertEquals(1, new.id)
         assertEquals(config.app, new.app)
+        assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(false, new.notifications.email)
         assertEquals(true, new.notifications.push)
         assertEquals(config.io, new.io)
@@ -67,6 +90,7 @@ class DeepCopyTest {
         val new = config.deepCopy(io_source_sourceDir = "/newSrc")
         assertEquals(1, new.id)
         assertEquals(config.app, new.app)
+        assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(config.notifications, new.notifications)
         assertEquals("/newSrc", new.io.source.sourceDir)
         assertEquals("/out", new.io.output?.outputDir)
@@ -82,6 +106,7 @@ class DeepCopyTest {
             )
         assertEquals(2, new.id)
         assertEquals("dark", new.app.theme)
+        assertEquals(config.fallbackApp, new.fallbackApp)
         assertEquals(config.notifications, new.notifications)
         assertEquals("/src", new.io.source.sourceDir)
         assertEquals("/newOut", new.io.output?.outputDir)

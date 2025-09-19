@@ -1,4 +1,4 @@
-package com.quarkdown.automerge.processor.utils
+package com.quarkdown.automerge.processor.dataclass
 
 import com.google.devtools.ksp.getDeclaredProperties
 import com.google.devtools.ksp.symbol.KSClassDeclaration

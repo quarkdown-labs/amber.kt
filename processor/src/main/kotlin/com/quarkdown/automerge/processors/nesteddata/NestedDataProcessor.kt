@@ -5,13 +5,14 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.quarkdown.automerge.annotations.NestedData
 import com.quarkdown.automerge.processor.AnnotationProcessor
-import com.quarkdown.automerge.processor.utils.isDataClass
+import com.quarkdown.automerge.processor.dataclass.isDataClass
 
 /**
  * KSP processor that handles classes annotated with @NestedData.
  */
-class NestedDataProcessor(environment: SymbolProcessorEnvironment) :
-    AnnotationProcessor<KSClassDeclaration>(
+class NestedDataProcessor(
+    environment: SymbolProcessorEnvironment,
+) : AnnotationProcessor<KSClassDeclaration>(
         environment,
         annotation = NestedData::class,
         generatorProvider = { NestedDataSourceGenerator(environment, it) },
