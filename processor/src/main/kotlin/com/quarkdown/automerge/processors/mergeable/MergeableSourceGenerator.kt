@@ -5,8 +5,8 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Nullability
 import com.quarkdown.automerge.processor.GenerationConstants.INDENT
+import com.quarkdown.automerge.processor.dataclass.dataClassProperties
 import com.quarkdown.automerge.processor.generator.ClassSourceGenerator
-import com.quarkdown.automerge.processor.utils.dataClassProperties
 
 /** Name of the generated merge function. */
 private const val MERGE_FUNCTION_NAME: String = "merge"

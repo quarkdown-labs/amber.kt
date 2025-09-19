@@ -1,10 +1,10 @@
-package com.quarkdown.automerge
+package com.quarkdown.automerge.processors.mergeable
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-class PersonTest {
+class MergeTest {
     @Test
     fun `merges nullable from fallback when primary is null`() {
         val a = Person(name = null, age = 20)

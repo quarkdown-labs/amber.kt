@@ -9,7 +9,7 @@ internal object GenerationConstants {
 
     /** File-level suppress annotation. */
     const val SUPPRESS_ANNOTATION: String =
-        """@file:Suppress("ktlint:standard:filename", "RedundantNullableReturnType", "UNUSED_PARAMETER")"""
+        """@file:Suppress("ktlint", "RedundantNullableReturnType", "UNUSED_PARAMETER", "LocalVariableName")"""
 
     /** Indentation used in generated code. */
     const val INDENT: String = "    "
