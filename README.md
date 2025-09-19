@@ -38,6 +38,8 @@ Annotating a data class with `@NestedData` will provide a `deepCopy` function, a
 The real power of this function is the flattening of nested properties:
 
 ```kotlin
+import com.quarkdown.amber.annotations.NestedData
+
 @NestedData
 data class Config(
     val app: AppConfig,
@@ -129,6 +131,8 @@ fun main() {
     println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=10)
 }
 ```
+
+&nbsp;
 
 ## Troubleshooting
 
