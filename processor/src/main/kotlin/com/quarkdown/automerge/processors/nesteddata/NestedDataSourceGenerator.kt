@@ -7,9 +7,22 @@ import com.google.devtools.ksp.symbol.Nullability
 import com.quarkdown.automerge.processor.GenerationConstants.INDENT
 import com.quarkdown.automerge.processor.generator.ClassSourceGenerator
 import com.quarkdown.automerge.processor.utils.dataClassProperties
+import com.quarkdown.automerge.processor.utils.isDataClass
 
 private const val FUNCTION_NAME = "deepCopy"
 
+/**
+ * Generates an extension function that performs a deep copy of a data class by
+ * exposing parameters for nested properties.
+ *
+ * Example output (simplified):
+ * fun Config.deepCopy(id: Int = this.id, app_theme: String = app.theme, ...): Config { ... }
+ *
+ * The generator walks nested data-class properties and emits parameters for every
+ * leaf and intermediate node (skipping the top-level names which are already
+ * declared as top-level parameters). It then emits code that rebuilds the
+ * nested data objects using copy(...) calls, applying null-safety where needed.
+ */
 class NestedDataSourceGenerator(
     environment: SymbolProcessorEnvironment,
     annotated: KSClassDeclaration,
@@ -32,7 +45,10 @@ class NestedDataSourceGenerator(
                 val name = p.simpleName.asString()
                 val resolved = p.type.resolve()
                 val typeName =
-                    resolved.declaration.qualifiedName!!.asString() + if (resolved.nullability == Nullability.NULLABLE) "?" else ""
+                    qualifiedTypeName(
+                        resolved.declaration as KSClassDeclaration,
+                        resolved.nullability == Nullability.NULLABLE,
+                    )
                 "$name: $typeName = this.$name"
             }
 
@@ -46,17 +62,21 @@ class NestedDataSourceGenerator(
         val type: String,
     )
 
-    // Recursive traversal utilities
-    private data class PathNode(
-        val parts: List<String>,
-        val decl: KSClassDeclaration,
-        val nullableChain: Boolean,
-    )
-
     private fun KSClassDeclaration.children(): List<com.google.devtools.ksp.symbol.KSPropertyDeclaration> = this.dataClassProperties
 
+    // Helper moved to class scope so it can be reused from signatureLine and buildNestedParams
+    private fun qualifiedTypeName(
+        decl: KSClassDeclaration,
+        nullable: Boolean,
+    ): String = decl.qualifiedName!!.asString() + if (nullable) "?" else ""
+
+    /**
+     * Build a comma-separated parameter list (as a String) describing all nested
+     * parameters for the extension function. Each parameter is emitted as
+     * "path_with_underscores: Type = ownerExpression".
+     */
     private fun buildNestedParams(): String {
-        val params = mutableListOf<Param>()
+        val nestedParamsList = mutableListOf<Param>()
 
         fun visitNode(
             path: List<String>,
@@ -67,11 +87,10 @@ class NestedDataSourceGenerator(
             // Add intermediate param for this node (except the root class itself; tests show only top-level direct props as top params)
             if (path.size > 1) { // skip adding the very first top-level data property name to avoid duplicates with top params
                 val nodePropName = path.joinToString("_")
-                val nodeTypeNullSuffix = if (nullableChain) "?" else ""
-                params +=
+                nestedParamsList +=
                     Param(
                         name = nodePropName,
-                        type = decl.qualifiedName!!.asString() + nodeTypeNullSuffix + " = $ownerExpr",
+                        type = qualifiedTypeName(decl, nullableChain) + " = $ownerExpr",
                     )
             }
 
@@ -79,12 +98,11 @@ class NestedDataSourceGenerator(
             for (prop in decl.children()) {
                 val propName = prop.simpleName.asString()
                 val propResolved = prop.type.resolve()
-                val isData =
-                    Modifier.DATA in propResolved.declaration.modifiers && propResolved.declaration is KSClassDeclaration
+                val childIsData = propResolved.isDataClass
                 val newPath = path + propName
                 val safeOwnerExpr = ownerExpr + (if (nullableChain) "?" else "") + ".$propName"
                 val nextNullable = nullableChain || (propResolved.nullability == Nullability.NULLABLE)
-                if (isData) {
+                if (childIsData) {
                     visitNode(
                         newPath,
                         propResolved.declaration as KSClassDeclaration,
@@ -95,7 +113,7 @@ class NestedDataSourceGenerator(
                     // Leaf param
                     val baseType = propResolved.declaration.qualifiedName!!.asString()
                     val leafType = baseType + if (nextNullable) "?" else ""
-                    params +=
+                    nestedParamsList +=
                         Param(
                             name = newPath.joinToString("_"),
                             type = "$leafType = $safeOwnerExpr",
@@ -108,7 +126,7 @@ class NestedDataSourceGenerator(
         for (p in annotated.dataClassProperties) {
             val pName = p.simpleName.asString()
             val resolved = p.type.resolve()
-            val isData = Modifier.DATA in resolved.declaration.modifiers && resolved.declaration is KSClassDeclaration
+            val isData = resolved.isDataClass
             if (isData) {
                 val nullable = resolved.nullability == Nullability.NULLABLE
                 // For parameters, we must not duplicate top-level names (they are already top params).
@@ -122,7 +140,7 @@ class NestedDataSourceGenerator(
             }
         }
 
-        return params.joinToString(", ") { "${it.name}: ${it.type}" }
+        return nestedParamsList.joinToString(", ") { "${it.name}: ${it.type}" }
     }
 
     private fun methodBody(): String =
