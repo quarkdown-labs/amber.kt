@@ -1,4 +1,11 @@
-# Amber ![Maven Central Version](https://img.shields.io/maven-central/v/com.quarkdown.amber/com.quarkdown.amber.gradle.plugin?color=orange)
+<p align="center">
+  <img alt="Banner" src="https://raw.githubusercontent.com/iamgio/quarkdown/project-files/images/amber-banner.svg" width="100%">
+  <br>
+  <br>
+  <img alt="Maven Central" src="https://img.shields.io/maven-central/v/com.quarkdown.amber/com.quarkdown.amber.gradle.plugin?color=orange">
+  <br>
+  <hr>
+</p>
 
 Amber is a tiny, compile-time, reflectionless collection of utilities that promote immutability and readability in Kotlin code.
 
