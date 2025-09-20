@@ -43,7 +43,7 @@ jobs:
           fi
           # Update README installation section: id("com.quarkdown.amber") version "x.y.z"
           if [ -f README.md ]; then
-            sed -E -i.bak "s/(id\\(\"com\\.quarkdown\\.amber\"\\) version \"\")[^\"]+\"/\\1$VERSION\"/g" README.md || true
+            sed -i.bak -E 's/(id\("com\.quarkdown\.amber"\)\s+version\s+")[^"]+/\1'"$VERSION"'/' README.md || true
             rm -f README.md.bak
           fi
           git config user.name "github-actions[bot]"
