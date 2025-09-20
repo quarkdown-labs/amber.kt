@@ -7,9 +7,54 @@ import com.quarkdown.amber.processor.dataclass.DataClassPropertyNode
 import com.quarkdown.amber.processor.dataclass.PropertyNode
 import com.quarkdown.amber.processor.dataclass.buildDataClassPropertiesTree
 import com.quarkdown.amber.processor.generator.ClassSourceGenerator
+import com.quarkdown.amber.processor.utils.KDocUtils
 
 /** The name of the generated deep copy extension function. */
 private const val FUNCTION_NAME = "deepCopy"
+
+private const val FUNCTION_KDOC = """
+Creates a deep copy of this data class, with optional modification of nested properties.
+
+This generated function exposes parameters for every property in the data class,
+including nested properties of other data class types.
+
+Example usage:
+```
+val original = OuterData(inner = InnerData(value = 42))
+val modified = original.deepCopy(innerValue = 100)
+// Result: OuterData(inner = InnerData(value = 100))
+```
+
+Note: This function deep-copies only data classes and their properties.
+It does not handle collections or other complex types on its own.
+
+Note: Consider the following:
+```
+data class First(val second: Second)
+data class Second(val third: Third)
+data class Third(val value: Int)
+```
+
+Nested parameters will take precedence over parent parameters:
+```
+val first = First(Second(Third(42)))
+val modified = first.deepCopy(second = Second(Third(100)), secondThirdValue = 200)
+// Result: First(Second(Third(200)))
+```
+
+Note: A nested property cannot be set if any of its parent properties are `null`:
+```
+data class First(val second: Second?)
+data class Second(val value: Int)
+
+val first = First(null)
+first.deepCopy(secondValue = 100) // First(null)
+first.deepCopy(second = Second(100)) // First(Second(100))
+first.deepCopy(second = Second(100), secondValue = 200) // First(Second(200))
+```
+
+@return A new instance of the data class with updated properties as specified.
+"""
 
 /**
  * Generates an extension function that performs a deep copy of a data class by
@@ -33,6 +78,7 @@ class NestedDataSourceGenerator(
         buildString {
             val propertiesTree = annotated.buildDataClassPropertiesTree()
             val params = buildParameterList(propertiesTree)
+            appendLine(KDocUtils.generate(FUNCTION_KDOC))
             append(signatureLine(propertiesTree, params))
             appendLine(" {")
             appendLine(methodBody(propertiesTree, params))
