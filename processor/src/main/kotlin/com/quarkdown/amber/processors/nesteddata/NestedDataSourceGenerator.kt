@@ -42,8 +42,8 @@ class NestedDataSourceGenerator(
     /**
      * A parameter in the generated function signature.
      *
-     * @property name The flattened parameter name, where each parent parameter is separated by [PARAMETER_PROPERTY_SEPARATOR]
-     *                (e.g., `first_second_third` for `first.second.third`)
+     * @property name The flattened parameter name, where each parent parameter is joined in camelCase
+     *                (e.g., `firstSecondThird` for `first.second.third`)
      * @property node The property node this parameter represents
      * @property parents The chain of parent nodes leading to this property
      */
@@ -124,27 +124,25 @@ class NestedDataSourceGenerator(
             buildString {
                 params.forEach { param ->
                     // Output examples:
-                    // a: A = this.a,
-                    // a_b_c: C = a.b.c,
-                    // a_b_c_d: D? = a.b.c.d,
+                    // first: First = this.first,,
+                    // firstSecondThird: Third = firstSecond.third,
+                    // firstSecondThird: Third? = firstSecond.third,
+                    // firstSecondThird: Third? = firstSecond?.third,
                     append(INDENT)
                     append(param.name)
                     append(": ")
                     append(param.node.type)
                     if (param.node.nullable || param.hasNullableParents) append("?")
                     append(" = ")
-                    if (param.parents.isEmpty()) append("this.")
 
-                    // Any node after a nullable one needs a safe access operator.
-                    var nullableChain = false
-                    (param.parents + param.node).forEachIndexed { index, node ->
-                        if (index > 0) {
-                            if (nullableChain) append("?")
-                            append(".")
-                        }
-                        append(node.name)
-                        if (node.nullable) nullableChain = true
-                    }
+                    // For example, the property chain `first.second.third` has the `firstSecondThird` parameter,
+                    // where its parent parameter is `firstSecond` and grandparent is `first`.
+                    val parentParam = params.find { it.node === param.parents.lastOrNull() }
+
+                    append(parentParam?.name ?: "this")
+                    if (param.hasNullableParents) append("?")
+                    append(".")
+                    append(param.node.name)
                     appendLine(",")
                 }
             }
@@ -183,17 +181,18 @@ class NestedDataSourceGenerator(
                     append(".")
                     append(copyData(node, params, parents + param))
                 } else {
-                    // Leaf property: use parameter directly, with null safety if needed.
+                    // Leaf property: use parameter directly.
                     append(param.name)
-                    if (node.nullable || param.hasNullableParents) {
-                        append(" ?: ")
-                        parents.lastOrNull()?.let {
-                            append(it.name)
-                            append(".")
-                        }
-                        append(node.name)
-                    }
                 }
+
+                // Null safety if needed.
+                if (param.hasNullableParents) {
+                    append(" ?: ")
+                    append(parents.lastOrNull()?.name ?: "this")
+                    append(".")
+                    append(node.name)
+                }
+
                 if (index < root.children.lastIndex) {
                     append(", ")
                 }

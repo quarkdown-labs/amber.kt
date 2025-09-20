@@ -2,6 +2,7 @@ package com.quarkdown.amber.processors.nesteddata
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNull
 
 class DeepCopyTest {
     private val config =
@@ -187,5 +188,64 @@ class DeepCopyTest {
         assertEquals(listOf('X', 'Y', 'Z'), new.letters)
         assertEquals(listOf('1', '2', '3'), new.anyLetters)
         assertEquals(mapOf('4' to 4, '5' to 5, '6' to 6), new.lettersToIndex)
+    }
+
+    @Test
+    fun `cannot copy non-nullable properties of null property`() {
+        val document = Document(Layout())
+        assertEquals(null, document.layout.margins)
+        val new = document.deepCopy(layoutMarginsTop = Size(10))
+        assertNull(
+            new.layout
+                .margins
+                ?.top
+                ?.value,
+        )
+    }
+
+    @Test
+    fun `copies non-nullable properties of null property if the parent is set, separately`() {
+        val document =
+            Document(Layout()).deepCopy(
+                layoutMargins =
+                    Margins(
+                        top = Size(1),
+                        bottom = Size(1),
+                        left = Size(1),
+                        right = Size(1),
+                    ),
+            )
+
+        val new = document.deepCopy(layoutMarginsTop = Size(10))
+        assertEquals(
+            10,
+            new.layout
+                .margins
+                ?.top
+                ?.value,
+        )
+    }
+
+    @Test
+    fun `copies non-nullable properties of null property if the parent is set, all-in-one`() {
+        val document = Document(Layout())
+        val new =
+            document.deepCopy(
+                layoutMargins =
+                    Margins(
+                        top = Size(1),
+                        bottom = Size(1),
+                        left = Size(1),
+                        right = Size(1),
+                    ),
+                layoutMarginsTop = Size(10),
+            )
+        assertEquals(
+            10,
+            new.layout
+                .margins
+                ?.top
+                ?.value,
+        )
     }
 }
