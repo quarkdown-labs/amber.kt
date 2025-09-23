@@ -13,8 +13,7 @@ repositories {
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
-    // Ensure the KSP Gradle plugin is on the classpath so applying it by id works
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.2.10-2.0.2")
+    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.2.20-2.0.3")
 }
 
 gradlePlugin {
