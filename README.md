@@ -17,7 +17,7 @@ Contributions towards multiplatform support are welcome.
 
 ```kotlin
 plugins {
-    id("com.quarkdown.amber") version "2.1.2"
+    id("com.quarkdown.amber") version "2.1.3"
 }
 
 repositories {
