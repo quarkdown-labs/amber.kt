@@ -13,7 +13,7 @@ repositories {
 dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
-    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.2.20-2.0.3")
+    implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.4")
 }
 
 gradlePlugin {
