@@ -165,9 +165,9 @@ class Person(
 )
 
 val person = Person("Alice", 30, "New York")
-val p1 = alice.diverge(age = 31)                  // Person(name=Alice, age=31, city=New York)
-val p2 = alice.diverge(age = 31, city = "Boston") // Person(name=Alice, age=31, city=Boston)
-val p3 = alice.diverge(name = "Bob")              // Error: 'name' is not marked with @Diverge
+val p1 = person.diverge(age = 31)                  // Person(name=Alice, age=31, city=New York)
+val p2 = person.diverge(age = 31, city = "Boston") // Person(name=Alice, age=31, city=Boston)
+val p3 = person.diverge(name = "Bob")              // Error: 'name' is not marked with @Diverge
 ```
 
 &nbsp;

@@ -23,6 +23,8 @@ import com.quarkdown.amber.processor.AnnotationProcessorBase
 class DivergeProcessor(
     environment: SymbolProcessorEnvironment,
 ) : AnnotationProcessorBase(environment, Diverge::class) {
+    private val emitted = mutableSetOf<String>()
+
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val (valid, deferred) = partitionSymbols(resolver)
 
@@ -33,6 +35,8 @@ class DivergeProcessor(
         }
 
         for ((cls, params) in markedParamsByClass) {
+            val fqn = cls.qualifiedName?.asString() ?: continue
+            if (!emitted.add(fqn)) continue
             guarded(cls) { emit(DivergeSourceGenerator(environment, cls, params)) }
         }
 
