@@ -1,2 +1,3 @@
 com.quarkdown.amber.processors.mergeable.MergeableProcessorProvider
 com.quarkdown.amber.processors.nesteddata.NestedDataProcessorProvider
+com.quarkdown.amber.processors.diverge.DivergeProcessorProvider
