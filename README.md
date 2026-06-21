@@ -13,6 +13,14 @@ The library was developed out of necessity for the [Quarkdown typesetting system
 it's currently available only for Kotlin/JVM, though Kotlin Multiplatform would be easy to support.  
 Contributions towards multiplatform support are welcome.
 
+## Table of contents
+
+- [Installation](#installation)
+- [Deep-copying data classes](#deep-copying-data-classes)
+- [Merging data classes](#merging-data-classes)
+- [Diverging classes](#diverging-classes)
+- [Troubleshooting](#troubleshooting)
+
 ## Installation
 
 ```kotlin
@@ -137,6 +145,29 @@ fun main() {
     val preferences: Preferences = user.merge(default)
     println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=10)
 }
+```
+
+&nbsp;
+
+## Diverging classes
+
+Annotating a class or its constructor parameters with `@Diverge` will provide a `diverge` function, similar to a data class's `copy`, but available on non-data classes and exposing only the marked parameters.
+
+This is useful when you need a `copy`-like function but can't make the class a full `data class`.
+
+```kotlin
+import com.quarkdown.amber.annotations.Diverge
+
+class Person(
+    val name: String,
+    @Diverge val age: Int,
+    @Diverge val city: String,
+)
+
+val person = Person("Alice", 30, "New York")
+val p1 = alice.diverge(age = 31)                  // Person(name=Alice, age=31, city=New York)
+val p2 = alice.diverge(age = 31, city = "Boston") // Person(name=Alice, age=31, city=Boston)
+val p3 = alice.diverge(name = "Bob")              // Error: 'name' is not marked with @Diverge
 ```
 
 &nbsp;
