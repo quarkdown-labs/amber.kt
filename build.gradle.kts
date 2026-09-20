@@ -42,7 +42,7 @@ subprojects.filter { it.name in publishingSubprojects }.forEach { project ->
 
         pom {
             name.set(projectName)
-            description.set(project.description)
+            description.set(project.provider { project.description })
             url.set("https://github.com/quarkdown-labs/amber.kt/")
             licenses {
                 license {
