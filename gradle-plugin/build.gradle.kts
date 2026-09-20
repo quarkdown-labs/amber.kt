@@ -14,6 +14,7 @@ dependencies {
     implementation(gradleApi())
     implementation(localGroovy())
     implementation("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:2.3.9")
+    compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.10")
 }
 
 gradlePlugin {
@@ -25,4 +26,8 @@ gradlePlugin {
             description = "Applies KSP and wires annotations and processor modules"
         }
     }
+}
+
+tasks.processResources {
+    from(rootProject.file("version.txt"))
 }

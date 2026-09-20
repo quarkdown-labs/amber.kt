@@ -11,10 +11,16 @@ on:
       - '.github/FUNDING.yml'
   pull_request:
     branches: ["**"]
+  workflow_call:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Kotlin/Native builds what its host supports: Linux covers the Linux targets, macOS the Apple ones.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
     steps:
@@ -31,4 +37,8 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Run tests
-        run: ./gradlew --no-daemon test
+        run: ./gradlew --no-daemon test allTests
+
+      - name: Assemble every target
+        if: matrix.os == 'macos-latest'
+        run: ./gradlew --no-daemon :annotations:assemble

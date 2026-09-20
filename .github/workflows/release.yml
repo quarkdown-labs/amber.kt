@@ -2,19 +2,25 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: [v*]
 
 jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
   release:
-    runs-on: ubuntu-latest
+    name: Publish to Maven Central
+    needs: ci
+    # Apple targets can only be built on macOS, which cross-compiles every other target too.
+    runs-on: macos-latest
     permissions:
       contents: write
-      packages: write
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
+          # Full tag history, required by replace-version-in-files to determine the previous release version.
           fetch-depth: 0
 
       - name: Setup Java
@@ -26,36 +32,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Run tests
-        run: ./gradlew --no-daemon test
+      # Bumps version.txt and the version referenced by the README, commits both
+      # to main, and publishes the GitHub release.
+      - name: Release
+        uses: iamgio/simple-release@v1
+        with:
+          version-file: version.txt
+          replace-version-in-files: README.md
+          commit: 'true'
+          commit-branch: main
 
-      - name: Derive version from tag and update version.txt and README.md
-        id: version
-        run: |
-          git pull --rebase origin main
-          TAG_NAME="${GITHUB_REF_NAME}"
-          VERSION="${TAG_NAME#v}"
-          echo "Version from tag: $VERSION"
-          echo "$VERSION" > version.txt
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          if [ -f gradle-plugin/src/main/resources/version.txt ]; then
-            echo "$VERSION" > gradle-plugin/src/main/resources/version.txt
-          fi
-          # Update README installation section: id("com.quarkdown.amber") version "x.y.z"
-          if [ -f README.md ]; then
-            sed -i.bak -E 's/(id\("com\.quarkdown\.amber"\)\s+version\s+")[^"]+/\1'"$VERSION"'/' README.md || true
-            rm -f README.md.bak
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
-            git add version.txt README.md gradle-plugin/src/main/resources/version.txt 2>/dev/null || true
-            git commit -m "chore: update version to $VERSION"
-            git push origin HEAD:main
-          else
-            echo "No version changes to commit."
-          fi
-
+      # Publishes the version now recorded in version.txt.
       - name: Publish to Maven Central
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
@@ -64,11 +51,4 @@ jobs:
           ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_KEY_ID }}
           ORG_GRADLE_PROJECT_signingInMemoryPassword: ${{ secrets.SIGNING_PASSWORD }}
           ORG_GRADLE_PROJECT_signingRequired: 'true'
-        run: |
-          ./gradlew --no-daemon publishAndReleaseToMavenCentral --stacktrace
-
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          token: "${{ secrets.GITHUB_TOKEN }}"
-          generate_release_notes: true
+        run: ./gradlew --no-daemon publishAndReleaseToMavenCentral --stacktrace

@@ -11,4 +11,4 @@ plugins {
 }
 
 rootProject.name = "amber"
-include(":annotations", ":processor", ":gradle-plugin", ":test")
+include(":annotations", ":processor", ":gradle-plugin", ":test", ":test-kmp")
