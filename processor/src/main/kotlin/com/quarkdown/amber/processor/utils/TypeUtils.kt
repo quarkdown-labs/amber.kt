@@ -1,6 +1,7 @@
 package com.quarkdown.amber.processor.utils
 
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeParameter
 
 /**
  * Returns a codegen-ready string representation of the [KSType], including its generic type
@@ -29,4 +30,26 @@ val KSType.formattedName: String
         }
 
         return formatTypeName(this)
+    }
+
+/**
+ * Returns a representation of the [KSType] that can be pasted as a type *use* in generated code.
+ *
+ * Unlike [formattedName], it refers to type parameters by their short name and carries nullability over, e.g. `kotlin.String?`.
+ */
+val KSType.typeUseName: String
+    get() {
+        val base =
+            when (val declaration = this.declaration) {
+                is KSTypeParameter -> declaration.name.asString()
+                else -> declaration.qualifiedName?.asString() ?: declaration.simpleName.asString()
+            }
+
+        val rendered =
+            when {
+                arguments.isEmpty() -> base
+                else -> "$base<${arguments.joinToString(", ") { it.type?.resolve()?.typeUseName ?: "*" }}>"
+            }
+
+        return if (isMarkedNullable) "$rendered?" else rendered
     }
