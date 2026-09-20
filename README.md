@@ -34,7 +34,7 @@ The library was developed out of necessity for the [Quarkdown typesetting system
 
 ```kotlin
 plugins {
-    id("com.quarkdown.amber") version "2.3.0"
+    id("com.quarkdown.amber") version "3.0.0"
 }
 
 repositories {
