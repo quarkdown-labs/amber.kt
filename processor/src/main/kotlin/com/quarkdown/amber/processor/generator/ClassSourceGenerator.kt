@@ -34,8 +34,11 @@ abstract class ClassSourceGenerator(
         buildString {
             appendLine(GenerationConstants.SUPPRESS_ANNOTATION)
             appendLine()
-            appendLine("package ${annotated.packageName.asString()}")
-            appendLine()
+            // A class may well live in the root package, which cannot be declared.
+            if (packageName.isNotEmpty()) {
+                appendLine("package $packageName")
+                appendLine()
+            }
             appendLine(GenerationConstants.GENERATED_HEADER)
             appendLine()
             appendLine(generateSourceBody(annotated))

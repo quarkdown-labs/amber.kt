@@ -4,22 +4,30 @@
   <br>
   <img alt="Maven Central" src="https://img.shields.io/maven-central/v/com.quarkdown.amber/com.quarkdown.amber.gradle.plugin?color=orange">
   <br>
+  <br>
+  <img alt="JVM" src="https://img.shields.io/badge/JVM-orange?logo=openjdk&logoColor=white">
+  <img alt="JS" src="https://img.shields.io/badge/JS-orange?logo=javascript&logoColor=white">
+  <img alt="Wasm" src="https://img.shields.io/badge/Wasm-orange?logo=webassembly&logoColor=white">
+  <img alt="Linux" src="https://img.shields.io/badge/Linux-orange?logo=linux&logoColor=white">
+  <img alt="macOS" src="https://img.shields.io/badge/macOS-orange?logo=apple&logoColor=white">
+  <img alt="iOS" src="https://img.shields.io/badge/iOS-orange?logo=apple&logoColor=white">
+  <img alt="Windows" src="https://img.shields.io/badge/Windows-orange?logo=mingww64&logoColor=white">
+  <br>
   <hr>
 </p>
 
-Amber is a tiny, compile-time, reflectionless collection of utilities that promote immutability and readability in Kotlin code.
+Amber is a lightweight, multiplatform, compile-time, reflectionless collection of utilities that promote immutability and readability in Kotlin code.
 
-The library was developed out of necessity for the [Quarkdown typesetting system](https://github.com/iamgio/quarkdown):
-it's currently available only for Kotlin/JVM, though Kotlin Multiplatform would be easy to support.  
-Contributions towards multiplatform support are welcome.
+The library was developed out of necessity for the [Quarkdown typesetting system](https://github.com/iamgio/quarkdown), and is extensively adopted there.
 
 ## Table of contents
 
 - [Installation](#installation)
-- [Deep-copying data classes](#deep-copying-data-classes)
-- [Merging data classes](#merging-data-classes)
-- [Exporting resources](#exporting-resources)
-- [Diverging classes](#diverging-classes)
+- [Features](#features)
+  - [Deep-copying data classes](#deep-copying-data-classes)
+  - [Merging data classes](#merging-data-classes)
+  - [Exporting resources](#exporting-resources)
+  - [Diverging classes](#diverging-classes)
 - [Troubleshooting](#troubleshooting)
 
 ## Installation
@@ -47,7 +55,11 @@ pluginManagement {
 
 &nbsp;
 
-## Deep-copying data classes
+## Features
+
+&nbsp;
+
+### Deep-copying data classes
 
 Annotating a data class with `@NestedData` will provide a `deepCopy` function, allowing waterfall copying of nested data classes.
 
@@ -99,7 +111,7 @@ val newConfig: Config = config.deepCopy(
 
 &nbsp;
 
-## Merging data classes
+### Merging data classes
 
 Annotating a data class with `@Mergeable` will provide a `merge` function.
 
@@ -117,7 +129,7 @@ val second = MyClass(a = "Y", b = 7, c = true)
 val merged: MyClass = first.merge(second) // MyClass(a=X, b=42, c=true)
 ```
 
-### Real-world example
+#### Real-world example
 
 The library's main purpose is to abstract away from rigid defaults, making it possible to create flexible configurations.
 
@@ -150,7 +162,7 @@ fun main() {
 
 &nbsp;
 
-## Exporting resources
+### Exporting resources
 
 Annotating a class or object with `@ExportResource` will read the given resource at compile time and expose its content as a `String` property. The text is inlined in the generated code, so that no file or classloader access happens at runtime.
 
@@ -169,7 +181,7 @@ fun main() {
 
 &nbsp;
 
-## Diverging classes
+### Diverging classes
 
 Annotating a class or its constructor parameters with `@Diverge` will provide a `diverge` function, similar to a data class's `copy`, but available on non-data classes and exposing only the marked parameters.
 
