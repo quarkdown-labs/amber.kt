@@ -18,6 +18,7 @@ Contributions towards multiplatform support are welcome.
 - [Installation](#installation)
 - [Deep-copying data classes](#deep-copying-data-classes)
 - [Merging data classes](#merging-data-classes)
+- [Exporting resources](#exporting-resources)
 - [Diverging classes](#diverging-classes)
 - [Troubleshooting](#troubleshooting)
 
@@ -144,6 +145,25 @@ fun main() {
     // Merging user preferences with defaults. User values take precedence.
     val preferences: Preferences = user.merge(default)
     println(preferences) // Preferences(theme=dark, fontSize=16, autoSaveDelay=10)
+}
+```
+
+&nbsp;
+
+## Exporting resources
+
+Annotating a class or object with `@ExportResource` will read the given resource at compile time and expose its content as a `String` property. The text is inlined in the generated code, so that no file or classloader access happens at runtime.
+
+```kotlin
+import com.quarkdown.amber.annotations.ExportResource
+
+@ExportResource("/templates/page.html")
+@ExportResource("/templates/theme.css", name = "style")
+object Templates
+
+fun main() {
+    println(Templates.page)  // Content of /templates/page.html
+    println(Templates.style) // Content of /templates/theme.css
 }
 ```
 

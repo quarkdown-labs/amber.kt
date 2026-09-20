@@ -5,6 +5,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.validate
 import com.quarkdown.amber.processor.generator.SourceGenerator
@@ -29,7 +30,12 @@ abstract class AnnotationProcessorBase(
     protected val logger: KSPLogger = environment.logger
 
     private val annotationName: String = annotation.java.simpleName
-    private val annotationFqn: String = annotation.java.run { "$packageName.$simpleName" }
+
+    /** Fully qualified name of the annotation this processor reacts to. */
+    protected val annotationFqn: String = annotation.java.run { "$packageName.$simpleName" }
+
+    /** Classes a file has already been generated for, to keep emission idempotent across rounds. */
+    private val emittedClasses: MutableSet<String> = mutableSetOf()
 
     /**
      * Partition this round's annotated symbols into (valid, deferred). Deferred symbols
@@ -43,7 +49,10 @@ abstract class AnnotationProcessorBase(
      * via [KSPLogger.error] anchored on [node] (typically the symbol being processed) so
      * KSP surfaces them as compilation errors rather than crashing the round.
      */
-    protected fun <T> guarded(node: KSNode?, block: () -> T): T? =
+    protected fun <T> guarded(
+        node: KSNode?,
+        block: () -> T,
+    ): T? =
         try {
             block()
         } catch (e: Exception) {
@@ -54,5 +63,19 @@ abstract class AnnotationProcessorBase(
     /** Write the generator's source to its destination file. */
     protected fun emit(generator: SourceGenerator<*>) {
         generator.writeFile(generator.generateSource())
+    }
+
+    /**
+     * Write the source of the generator supplied by [generatorProvider], unless a file has already
+     * been emitted for [cls]. Needed whenever a class can be reached more than once, e.g. via a
+     * repeatable annotation, or via several annotated members.
+     */
+    protected fun emitOnce(
+        cls: KSClassDeclaration,
+        generatorProvider: () -> SourceGenerator<*>,
+    ) {
+        val fqn = cls.qualifiedName?.asString() ?: return
+        if (!emittedClasses.add(fqn)) return
+        guarded(cls) { emit(generatorProvider()) }
     }
 }

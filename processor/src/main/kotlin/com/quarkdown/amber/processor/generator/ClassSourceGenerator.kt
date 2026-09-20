@@ -3,6 +3,7 @@ package com.quarkdown.amber.processor.generator
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.quarkdown.amber.processor.GenerationConstants
+import com.quarkdown.amber.processor.utils.generatedFileBaseName
 
 /**
  * Base implementation of SourceGenerator for generators that produce source for a class.
@@ -21,9 +22,9 @@ abstract class ClassSourceGenerator(
     override val packageName: String
         get() = annotated.packageName.asString()
 
-    /** Output file name without extension (e.g., MyClass_Mergeable). */
+    /** Output file name without extension (e.g., MyClass_Mergeable, Outer_Nested_Mergeable). */
     override val fileName: String
-        get() = "${annotated.simpleName.asString()}_$fileNameSuffix"
+        get() = "${annotated.generatedFileBaseName}_$fileNameSuffix"
 
     /**
      * Produces the full source text including file-level suppressions, package line,

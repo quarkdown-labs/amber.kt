@@ -12,7 +12,7 @@ import com.quarkdown.amber.processor.AnnotationProcessorBase
 /**
  * KSP processor for [Diverge].
  *
- * Normalises every annotated symbol into a set of marked primary-constructor parameter
+ * Normalizes every annotated symbol into a set of marked primary-constructor parameter
  * names per class:
  * - `@Diverge` on a value parameter -> that parameter is marked.
  * - `@Diverge` on the primary constructor -> all its parameters are marked.
@@ -23,8 +23,6 @@ import com.quarkdown.amber.processor.AnnotationProcessorBase
 class DivergeProcessor(
     environment: SymbolProcessorEnvironment,
 ) : AnnotationProcessorBase(environment, Diverge::class) {
-    private val emitted = mutableSetOf<String>()
-
     override fun process(resolver: Resolver): List<KSAnnotated> {
         val (valid, deferred) = partitionSymbols(resolver)
 
@@ -35,9 +33,7 @@ class DivergeProcessor(
         }
 
         for ((cls, params) in markedParamsByClass) {
-            val fqn = cls.qualifiedName?.asString() ?: continue
-            if (!emitted.add(fqn)) continue
-            guarded(cls) { emit(DivergeSourceGenerator(environment, cls, params)) }
+            emitOnce(cls) { DivergeSourceGenerator(environment, cls, params) }
         }
 
         return deferred
@@ -46,30 +42,37 @@ class DivergeProcessor(
     private fun resolveTarget(symbol: KSAnnotated): Pair<KSClassDeclaration, Set<String>> =
         when (symbol) {
             is KSValueParameter -> {
-                val ctor = symbol.parent as? KSFunctionDeclaration
-                    ?: error("a value parameter must live inside a primary constructor")
+                val ctor =
+                    symbol.parent as? KSFunctionDeclaration
+                        ?: error("a value parameter must live inside a primary constructor")
                 ctor.requirePrimaryConstructorClass() to setOf(symbol.name!!.asString())
             }
+
             is KSFunctionDeclaration -> {
                 symbol.requirePrimaryConstructorClass() to symbol.parameters.allParamNames()
             }
+
             is KSClassDeclaration -> {
-                val ctor = symbol.primaryConstructor
-                    ?: error("class ${symbol.qualifiedName?.asString()} has no primary constructor")
+                val ctor =
+                    symbol.primaryConstructor
+                        ?: error("class ${symbol.qualifiedName?.asString()} has no primary constructor")
                 symbol to ctor.parameters.allParamNames()
             }
-            else -> error("unsupported annotation target: ${symbol::class.simpleName}")
+
+            else -> {
+                error("unsupported annotation target: ${symbol::class.simpleName}")
+            }
         }
 
     private fun KSFunctionDeclaration.requirePrimaryConstructorClass(): KSClassDeclaration {
-        val cls = parentDeclaration as? KSClassDeclaration
-            ?: error("a constructor must be declared inside a class")
+        val cls =
+            parentDeclaration as? KSClassDeclaration
+                ?: error("a constructor must be declared inside a class")
         require(this == cls.primaryConstructor) {
             "@Diverge must target the primary constructor of ${cls.qualifiedName?.asString()}"
         }
         return cls
     }
 
-    private fun List<KSValueParameter>.allParamNames(): Set<String> =
-        mapNotNull { it.name?.asString() }.toSet()
+    private fun List<KSValueParameter>.allParamNames(): Set<String> = mapNotNull { it.name?.asString() }.toSet()
 }

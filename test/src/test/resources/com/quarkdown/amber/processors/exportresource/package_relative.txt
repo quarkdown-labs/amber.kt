@@ -1,0 +1,1 @@
+Sibling of the annotated class.

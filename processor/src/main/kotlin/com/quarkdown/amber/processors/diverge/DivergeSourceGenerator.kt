@@ -2,11 +2,13 @@ package com.quarkdown.amber.processors.diverge
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.quarkdown.amber.processor.GenerationConstants.INDENT
 import com.quarkdown.amber.processor.generator.ClassSourceGenerator
+import com.quarkdown.amber.processor.utils.arguments
+import com.quarkdown.amber.processor.utils.declaration
+import com.quarkdown.amber.processor.utils.typeUseName
+import com.quarkdown.amber.processor.utils.whereClause
 
 /** Name of the generated extension function. */
 private const val DIVERGE_FUNCTION_NAME: String = "diverge"
@@ -45,13 +47,7 @@ class DivergeSourceGenerator(
 
         val className = annotated.simpleName.asString()
         val typeParams = annotated.typeParameters
-        val typeParamsDecl = typeParams.joinNames(prefix = "<", postfix = "> ")
-        val typeArgs = typeParams.joinNames(prefix = "<", postfix = ">")
-        val explicitBounds = typeParams.flatMap { tp ->
-            tp.bounds.map { tp.name.asString() to it.resolve() }.filterNot { (_, b) -> b.isAnyDefaultBound() }
-        }
-        val whereClause = if (explicitBounds.isEmpty()) "" else
-            explicitBounds.joinToString(", ", prefix = " where ") { (n, b) -> "$n : ${b.renderTypeUse()}" }
+        val typeArgs = typeParams.arguments
         val receiver = "$className$typeArgs"
 
         val signature = ctorParams
@@ -60,20 +56,17 @@ class DivergeSourceGenerator(
         val ctorArgs = ctorParams.joinToString(separator = "") { it.callArgLine() }
 
         return buildString {
-            appendLine("fun $typeParamsDecl$receiver.$DIVERGE_FUNCTION_NAME(")
+            appendLine("fun ${typeParams.declaration}$receiver.$DIVERGE_FUNCTION_NAME(")
             append(signature)
-            appendLine("): $receiver$whereClause = $className$typeArgs(")
+            appendLine("): $receiver${typeParams.whereClause} = $className$typeArgs(")
             append(ctorArgs)
             append(")")
         }
     }
 
-    private fun List<KSTypeParameter>.joinNames(prefix: String, postfix: String): String =
-        if (isEmpty()) "" else joinToString(", ", prefix, postfix) { it.name.asString() }
-
     private fun KSValueParameter.signatureLine(): String {
         val name = name!!.asString()
-        return "$INDENT$name: ${type.resolve().renderTypeUse()} = this.$name,\n"
+        return "$INDENT$name: ${type.resolve().typeUseName} = this.$name,\n"
     }
 
     private fun KSValueParameter.callArgLine(): String {
@@ -82,17 +75,3 @@ class DivergeSourceGenerator(
         return "$INDENT$name = $rhs,\n"
     }
 }
-
-/** Render [this] as Kotlin source: FQN for declared types, short name for type parameters, recursing into generic args. */
-private fun KSType.renderTypeUse(): String {
-    val decl = declaration
-    val base = if (decl is KSTypeParameter) decl.name.asString()
-        else decl.qualifiedName?.asString() ?: decl.simpleName.asString()
-    val rendered = if (arguments.isEmpty()) base
-        else "$base<${arguments.joinToString(", ") { it.type?.resolve()?.renderTypeUse() ?: "*" }}>"
-    return if (isMarkedNullable) "$rendered?" else rendered
-}
-
-/** True if this is the implicit `kotlin.Any?` upper bound KSP adds to unbounded type parameters. */
-private fun KSType.isAnyDefaultBound(): Boolean =
-    isMarkedNullable && declaration.qualifiedName?.asString() == "kotlin.Any"
